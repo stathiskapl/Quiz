@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -22,6 +17,8 @@ using Microsoft.AspNetCore.Http;
 using Quiz.Models;
 using Quiz.Repositories;
 using Quiz.Services;
+using AutoMapper;
+using Quiz.Helpers;
 
 namespace Quiz
 {
@@ -53,12 +50,12 @@ namespace Quiz
                     o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     o.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
-            //var mappingConfig = new MapperConfiguration(mc =>
-            //{
-            //    mc.AddProfile(new AutoMapperProfiles());
-            //});
-            //IMapper mapper = mappingConfig.CreateMapper();
-            //services.AddSingleton(mapper);
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new AutoMapperProfiles());
+            });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
             //services.AddTransient<Seed>();
             services.AddSwaggerGen(c =>
             {
@@ -85,22 +82,22 @@ namespace Quiz
                 });
             });
 
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddJwtBearer(options =>
-            //    {
-            //        options.TokenValidationParameters = new TokenValidationParameters()
-            //        {
-            //            ValidateIssuerSigningKey = true,
-            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
-            //                .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
-            //            ValidateIssuer = false,
-            //            ValidateAudience = false
-            //        };
-            //    });
-            //services.AddTransient<IUserRepository, UserRepository>();
-            //services.AddTransient<IUserService, UserService>();
-            //services.AddTransient<IRoleRepository, RoleRepository>();
-            //services.AddTransient<IRoleService, RoleService>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                            .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IRoleRepository, RoleRepository>();
+            services.AddTransient<IRoleService, RoleService>();
             //services.AddTransient<IPlayerService, PlayerService>();
             //services.AddTransient<IPlayerRepository, PlayerRepository>();
             //services.AddTransient<ISkillService, SkillService>();
@@ -136,7 +133,7 @@ namespace Quiz
                         var error = context.Features.Get<IExceptionHandlerFeature>();
                         if (error != null)
                         {
-                            //context.Response.AddApllicationError(error.Error.Message);
+                            context.Response.AddApllicationError(error.Error.Message);
                             await context.Response.WriteAsync(error.Error.Message);
                         }
                     });
@@ -150,7 +147,7 @@ namespace Quiz
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod());
-            //app.UseAuthentication();
+            app.UseAuthentication();
             app.Use(async (context, next) =>
             {
                 await next();

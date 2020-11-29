@@ -10,8 +10,8 @@ using Quiz.Models;
 namespace Quiz.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20201128154031_first2")]
-    partial class first2
+    [Migration("20201129144532_first")]
+    partial class first
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -126,6 +126,23 @@ namespace Quiz.Migrations
                     b.ToTable("Results");
                 });
 
+            modelBuilder.Entity("Quiz.Models.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("CreatedOnDateTime");
+
+                    b.Property<string>("Name");
+
+                    b.Property<DateTime?>("UpdatedOnDateTime");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("Quiz.Models.School", b =>
                 {
                     b.Property<int>("Id")
@@ -185,6 +202,29 @@ namespace Quiz.Migrations
                     b.ToTable("Tests");
                 });
 
+            modelBuilder.Entity("Quiz.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("CreatedOnDateTime");
+
+                    b.Property<string>("Password");
+
+                    b.Property<int?>("RoleId");
+
+                    b.Property<DateTime?>("UpdatedOnDateTime");
+
+                    b.Property<string>("UserName");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("Quiz.Models.Answer", b =>
                 {
                     b.HasOne("Quiz.Models.Question", "Question")
@@ -240,6 +280,13 @@ namespace Quiz.Migrations
                     b.HasOne("Quiz.Models.Lesson", "Lesson")
                         .WithMany()
                         .HasForeignKey("LessonId");
+                });
+
+            modelBuilder.Entity("Quiz.Models.User", b =>
+                {
+                    b.HasOne("Quiz.Models.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId");
                 });
 #pragma warning restore 612, 618
         }

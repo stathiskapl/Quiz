@@ -9,6 +9,21 @@ namespace Quiz.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Roles",
+                columns: table => new
+                {
+                    CreatedOnDateTime = table.Column<DateTime>(nullable: true),
+                    UpdatedOnDateTime = table.Column<DateTime>(nullable: true),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Schools",
                 columns: table => new
                 {
@@ -21,6 +36,29 @@ namespace Quiz.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Schools", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    CreatedOnDateTime = table.Column<DateTime>(nullable: true),
+                    UpdatedOnDateTime = table.Column<DateTime>(nullable: true),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    UserName = table.Column<string>(nullable: true),
+                    Password = table.Column<string>(nullable: true),
+                    RoleId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -127,6 +165,7 @@ namespace Quiz.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     TestId = table.Column<int>(nullable: true),
+                    Name = table.Column<string>(nullable: true),
                     CorrectAnswer = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -146,7 +185,8 @@ namespace Quiz.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    QuestionId = table.Column<int>(nullable: true)
+                    QuestionId = table.Column<int>(nullable: true),
+                    Name = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -229,6 +269,11 @@ namespace Quiz.Migrations
                 name: "IX_Tests_LessonId",
                 table: "Tests",
                 column: "LessonId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_RoleId",
+                table: "Users",
+                column: "RoleId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -237,7 +282,13 @@ namespace Quiz.Migrations
                 name: "Results");
 
             migrationBuilder.DropTable(
+                name: "Users");
+
+            migrationBuilder.DropTable(
                 name: "Answers");
+
+            migrationBuilder.DropTable(
+                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Questions");
